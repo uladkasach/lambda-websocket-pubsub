@@ -12,27 +12,22 @@ const subscriptionsTableConfig: aws.dynamodb.TableArgs = {
 
   attributes: [
     {
-      name: 'p', // p = partition key
+      name: 'p', // p = partition key: the lookup index
       type: 'S', // string
     },
     {
-      name: 'u', // u = unique data in partition sort key; for idempotency (i.e., on conflict overwrite)
-      type: 'S', // string
-    },
-    {
-      name: 's', // s = secondary index key
+      name: 'u', // u = "secondary key": defines the unique key of this entity, in conjunction w/ the partition key
       type: 'S', // string
     },
   ],
 
   hashKey: 'p', // partition key
-  rangeKey: 'u', // the data that makes the row unique per partition, for idempotency
+  rangeKey: 'u', // "secondary key"; defines "uniqueness" (p + u = unique entity)
 
   globalSecondaryIndexes: [
     {
-      // define another range key, the sort key - for querying against (since the default sort key can't solve our timestamp queries)
       name: 'SecondaryIndex',
-      hashKey: 's',
+      hashKey: 'p2', // define a second index, for alternate table lookups
       projectionType: 'ALL', // TODO: see if we should move to projectionType KEYS to reduce cost
     },
   ],

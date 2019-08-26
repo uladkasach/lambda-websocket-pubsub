@@ -1,6 +1,6 @@
 export interface Config {
   dynamodb: {
-    subscription: {
+    subscriptions: {
       name: string;
     };
   };

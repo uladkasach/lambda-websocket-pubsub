@@ -1,9 +1,6 @@
 {
   "defaultSeverity": "error",
-  "extends":  [
-      "tslint:recommended",
-      "tslint-config-airbnb"
-  ],
+  "extends": ["tslint:recommended", "tslint-config-airbnb"],
   "rulesDirectory": ["tslint-consistent-codestyle"],
   "rules": {
     "no-console": {
@@ -21,7 +18,7 @@
     "no-unused": true,
     "no-unnecessary-else": true,
     "no-unnecessary-type-annotation": false,
-    "member-ordering": false
-  },
-  "rulesDirectory": []
+    "member-ordering": false,
+    "ter-arrow-parens": false
+  }
 }
