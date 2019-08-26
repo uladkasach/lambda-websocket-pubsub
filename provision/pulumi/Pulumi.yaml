@@ -1,0 +1,3 @@
+name: lambda-websocket-pubsub-package
+runtime: nodejs
+description: lambda-websocket-pubsub-package
