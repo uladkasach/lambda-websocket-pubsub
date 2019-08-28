@@ -1,6 +1,6 @@
 {
   "name": "lambda-websocket-pubsub",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "a library for managing websocket communication for aws lambdas + api gateway in a pubsub way",
   "author": "UladKasach @uladkasach",
   "license": "MIT",
