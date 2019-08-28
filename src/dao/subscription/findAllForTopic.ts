@@ -4,7 +4,7 @@ import { Config, Consumer, Subscription } from '../../types';
 export const findAllForTopic = async ({ config, topicId }: { config: Config; topicId: string }) => {
   // get config
   const dynamodbDocClient = new DynamoDB.DocumentClient();
-  const tableName = config.dynamodb.subscriptions.name;
+  const tableName = config.dynamodbTableName;
 
   // save the record
   const result = await dynamodbDocClient

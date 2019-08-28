@@ -6,11 +6,7 @@ import { add } from './add';
 dotenv.config(); // load the .env vars into process.env
 
 const config: Config = {
-  dynamodb: {
-    subscriptions: {
-      name: process.env.DYNAMO_TABLE_NAME_FOR_TESTING!,
-    },
-  },
+  dynamodbTableName: process.env.DYNAMO_TABLE_NAME_FOR_TESTING!,
 };
 
 describe('add', () => {

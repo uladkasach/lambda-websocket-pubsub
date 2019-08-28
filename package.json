@@ -21,7 +21,7 @@
     "topic"
   ],
   "bugs": "https://github.com/uladkasach/lambda-websocket-pubsub/issues",
-  "main": "dist/index.js",
+  "main": "dist/contract/index.js",
   "engines": {
     "node": ">=8.0.0"
   },

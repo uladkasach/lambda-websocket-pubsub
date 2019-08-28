@@ -5,7 +5,7 @@ import { getConsumerIdFromConsumer } from './utils/getConsumerIdFromConsumer';
 export const findAllForConsumer = async ({ config, consumer }: { config: Config; consumer: Consumer }) => {
   // get config
   const dynamodbDocClient = new DynamoDB.DocumentClient();
-  const tableName = config.dynamodb.subscriptions.name;
+  const tableName = config.dynamodbTableName;
   const consumerId = getConsumerIdFromConsumer({ consumer });
 
   // save the record
