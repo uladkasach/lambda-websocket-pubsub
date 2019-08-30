@@ -9,5 +9,5 @@ export const pushDataToConsumerThroughWebsocket = async ({ consumer, data }: { c
   });
 
   // 2. send data w/ the client
-  await client.postToConnection({ ConnectionId: consumer.connectionId, Data: data });
+  await client.postToConnection({ ConnectionId: consumer.connectionId, Data: data }).promise();
 };

@@ -3,7 +3,8 @@ import { Consumer } from '../../types';
 import { pushDataToConsumerThroughWebsocket } from './pushDataToConsumerThroughWebsocket';
 
 jest.mock('aws-sdk', () => {
-  const postToConnectionMock = jest.fn();
+  const promisePostToConnectionMock = jest.fn();
+  const postToConnectionMock = jest.fn().mockImplementation(() => ({ promise: promisePostToConnectionMock }));
   return {
     ApiGatewayManagementApi: jest.fn().mockImplementation(() => ({
       postToConnection: postToConnectionMock,
@@ -13,6 +14,7 @@ jest.mock('aws-sdk', () => {
 
 const constructorMock = (ApiGatewayManagementApi as any) as jest.Mock;
 const postToConnectionMock = new ApiGatewayManagementApi().postToConnection as jest.Mock;
+const promisePostToConnectionMock = new ApiGatewayManagementApi().postToConnection().promise as jest.Mock;
 
 describe('pushDataToConsumerThroughWebsocket', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -41,5 +43,9 @@ describe('pushDataToConsumerThroughWebsocket', () => {
         Data: exampleData,
       }),
     );
+  });
+  it('should call the promise method, to ensure message is sent with aws-sdk syntax', async () => {
+    await pushDataToConsumerThroughWebsocket({ consumer: exampleConsumer, data: exampleData });
+    expect(promisePostToConnectionMock).toHaveBeenCalledTimes(1);
   });
 });
