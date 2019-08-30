@@ -19,6 +19,10 @@ const subscriptionsTableConfig: aws.dynamodb.TableArgs = {
       name: 'u', // u = "secondary key": defines the unique key of this entity, in conjunction w/ the partition key
       type: 'S', // string
     },
+    {
+      name: 'p2', // p2 = secondary index partition key: a different lookup index
+      type: 'S', // string
+    },
   ],
 
   hashKey: 'p', // partition key

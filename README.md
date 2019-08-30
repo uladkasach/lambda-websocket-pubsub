@@ -23,7 +23,7 @@ npm install --save lambda-websocket-pubsub
 please provision a dynamodb table which has the following settings:
 
 ```js
- {
+{
   billingMode: 'PAY_PER_REQUEST',
 
   attributes: [
@@ -33,6 +33,10 @@ please provision a dynamodb table which has the following settings:
     },
     {
       name: 'u', // u = "secondary key": defines the unique key of this entity, in conjunction w/ the partition key
+      type: 'S', // string
+    },
+    {
+      name: 'p2', // p2 = secondary index partition key: a different lookup index
       type: 'S', // string
     },
   ],
@@ -68,7 +72,7 @@ the example below sets up a handler that:
 the result is that any time a message is published to the topic the consumer subscribed to, the consumer will get pushed that message pushed to them through the websocket connection.
 
 ```ts
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent, Context } from 'aws-lambda';
 import { extractConsumerFromApiGatewayEvent, subscribeToTopic, unsubscribeFromAllTopics } from 'lambda-websocket-pubsub';
 
 export enum WebSocketEventType {
@@ -81,28 +85,44 @@ const lwpConfig = {
   dynamodbTableName: 'super-important-subscriptions',
 };
 
-const websocketHandler = async (event: APIGatewayEvent) => {
+const response = {
+  badRequest: { statusCode: 400 },
+  success: { statusCode: 200 },
+};
+
+const websocketHandler = async (event: APIGatewayEvent, context: Context) => {
   // extract relevant data from the event
   const consumer = extractConsumerFromApiGatewayEvent({ event });
   const eventType = event.requestContext.eventType as WebSocketEventType;
 
   // handle each event type
-  if (eventType === WebSocketEventTypes.CONNECT) {
+  if (eventType === WebSocketEventType.CONNECT) {
     // do nothing
-  } else if (eventType === WebSocketEventTypes.DISCONNECT) {
+  } else if (eventType === WebSocketEventType.DISCONNECT) {
     await unsubscribeFromAllTopics({ consumer, config: lwpConfig });
   } else {
-    // extract the payload
-    const payload = JSON.parse(event.body);
-    if (payload.action !== 'SUBSCRIBE') return; // don't do anything unless the client explicitly asked to 'subscribe'
+    // 1. parse and validate the request
+    const payload = (() => {
+      // define payload in an immediately invoked function to use a try catch while still ensuring that its a `const`
+      try {
+        if (!event.body) throw new Error('no body');
+        return JSON.parse(event.body);
+      } catch (error) {
+        logger.warn(context, 'error extracting payload from message', { body: event.body, error });
+        return null;
+      }
+    })();
+    it (!payload) return response.badRequest; // if no payload, bad request
+    if (payload.action !== 'SUBSCRIBE') return response.badRequest; // if not a supported action, bad request
+    if (!payload.topicId) return response.badRequest; // if the topicId is not defined, bad request;
+    // NOTE: you may want to add additional validation for your use case here
 
-    // since the user asked to subscribe, check that the payload includes the topicId
-    const topicId = payload.topicId; // note: in practice, you should probably have the user pass this value as a property that has more meaning for your use case (e.g., `chatThreadUuid` instead of `topicId`)
-    if (!topicId) throw new Error('subscription requests must include topicId'); // note: this only checks that the topicId is defined, but additional validation may be useful
-
-    // given the consumer and the topic id are well defined, lets subscribe them
+    // 2. given the consumer and the topic id are well defined, lets subscribe them
     await subscribeToTopic({ consumer, topicId, config: lwpConfig });
   }
+
+  // return successful response if reached here
+  return response.success;
 };
 ```
 
